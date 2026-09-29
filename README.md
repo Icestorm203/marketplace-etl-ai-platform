@@ -1,460 +1,362 @@
-# Marketplace ETL AI Platform
+# Marketplace ETL Platform
 
-Backend-платформа для хранения, обработки и анализа данных маркетплейсов.
+[![Tests](https://github.com/Icestorm203)](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml)
 
-На текущем этапе проект представляет собой REST API на FastAPI с PostgreSQL, SQLAlchemy, Alembic, Docker и автоматическим тестированием через Pytest и GitHub Actions.
+Проект представляет собой backend-сервис на FastAPI для управления данными маркетплейса: товары, остатки, продажи и синхронизация с Shopify. Архитектура рассчитана на хранение данных в PostgreSQL, миграции через Alembic и дальнейшее расширение для аналитики и интеграций.
 
----
+## Что умеет проект
 
-## Features
+- управление каталогом товаров
+- учёт складских остатков
+- учёт продаж
+- OAuth-аутентификация Shopify
+- синхронизация продуктов из Shopify через GraphQL API
+- статистика по товарам Shopify
+- проверки состояния API и базы данных
+- поддержка Docker для локального запуска
+- автоматическое тестирование (19 тестов)
 
-### Products
+## Технологии
 
-- Create product
-- Get all products
-- Get product by ID
-- Update product
-- Delete product
-
-### Stocks
-
-- Create stock
-- Get all stocks
-- Get stock by ID
-
-### Sales
-
-- Create sale
-- Get all sales
-- Get sale by ID
-
-### Infrastructure
-
+- Python 3.12+
 - FastAPI
+- SQLAlchemy 2.0
 - PostgreSQL
-- SQLAlchemy 2.0
-- Alembic migrations
-- Docker Compose
-- Pytest
-- GitHub Actions CI
-
----
-
-## Tech Stack
-
-- Python 3.12
-- FastAPI
-- PostgreSQL 17
-- SQLAlchemy 2.0
 - Alembic
 - Pydantic
-- Docker
-- Docker Compose
-- Pytest
-- GitHub Actions
+- pytest
+- Docker / Docker Compose
+- Shopify Admin API
+- GraphQL
 
----
-
-## Architecture
+## ETL-процесс
 
 ```text
-app/
-├── api/
-│   ├── products.py
-│   ├── stocks.py
-│   └── sales.py
-│
-├── database/
-│   └── database.py
-│
-├── models/
-│   ├── product.py
-│   ├── stock.py
-│   └── sale.py
-│
-├── schemas/
-│   ├── product.py
-│   ├── stock.py
-│   └── sale.py
-│
-├── services/
-│   ├── product_service.py
-│   ├── stock_service.py
-│   └── sale_service.py
-│
-└── main.py
-
-alembic/
-tests/
-.github/workflows/
+Shopify
+    ↓
+OAuth Authentication
+    ↓
+Access Token
+    ↓
+GraphQL API
+    ↓
+Извлечение данных
+    ↓
+Pydantic Validation
+    ↓
+PostgreSQL
+    ↓
+REST API
 ```
 
----
+## Структура проекта
 
-## Database Schema
+```text
+.
+├── alembic/                  # миграции базы данных
+├── app/
+│   ├── api/                  # маршруты FastAPI
+│   ├── database/             # конфигурация БД и сессии
+│   ├── integrations/
+│   │   └── shopify/          # интеграция с Shopify
+│   ├── models/               # SQLAlchemy-модели
+│   ├── schemas/              # Pydantic-схемы
+│   ├── services/             # бизнес-логика
+│   ├── main.py               # точка входа приложения
+│   └── __init__.py
+├── tests/                    # интеграционные/endpoint-тесты
+├── .env.example              # пример переменных окружения
+├── docker-compose.yml        # запуск PostgreSQL + приложения
+├── Dockerfile                # образ приложения
+├── requirements.txt          # зависимости
+├── alembic.ini               # конфигурация Alembic
+├── pytest.ini                # конфигурация pytest
+└── README.md
+```
+
+## Основные сущности
 
 ### Product
 
-```text
-Product
-├── id
-├── sku
-├── name
-├── purchase_price
-├── sale_price
-└── created_at
-```
+Товар маркетплейса.
+
+Поля:
+- id
+- sku
+- name
+- purchase_price
+- sale_price
+- created_at
 
 ### Stock
 
-```text
-Stock
-├── id
-├── product_id
-├── quantity
-└── updated_at
-```
+Остатки по товару.
+
+Поля:
+- id
+- product_id
+- quantity
+- updated_at
 
 ### Sale
 
-```text
-Sale
-├── id
-├── product_id
-├── quantity
-├── sale_amount
-└── sale_date
+Продажа товара.
+
+Поля:
+- id
+- product_id
+- quantity
+- sale_amount
+- sale_date
+
+### ShopifyProduct
+
+Данные, импортированные из Shopify.
+
+Поля:
+- id
+- title
+- vendor
+- status
+
+## Переменные окружения
+
+Скопируйте [.env.example](.env.example) в .env и заполните значения:
+
+```env
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/marketplace_db
+POSTGRES_DB=marketplace_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+
+SHOPIFY_SHOP=
+SHOPIFY_CLIENT_ID=
+SHOPIFY_CLIENT_SECRET=
 ```
 
----
+> Для локального запуска совместно с Docker переменные из .env автоматически подтягиваются в контейнер app.
 
-## Relationships
+## Запуск проекта
 
-```text
-Product
-│
-├── Stocks (1:N)
-│
-└── Sales (1:N)
-```
-
----
-
-# API Endpoints
-
-## Products
-
-### Create product
-
-```http
-POST /products
-```
-
-Request:
-
-```json
-{
-  "sku": "SKU001",
-  "name": "Mouse",
-  "purchase_price": 500,
-  "sale_price": 990
-}
-```
-
----
-
-### Get all products
-
-```http
-GET /products
-```
-
----
-
-### Get product by id
-
-```http
-GET /products/{id}
-```
-
----
-
-### Update product
-
-```http
-PUT /products/{id}
-```
-
-Request:
-
-```json
-{
-  "sku": "SKU001",
-  "name": "Gaming Mouse",
-  "purchase_price": 500,
-  "sale_price": 1190
-}
-```
-
----
-
-### Delete product
-
-```http
-DELETE /products/{id}
-```
-
-Response:
-
-```json
-{
-  "message": "Product deleted"
-}
-```
-
----
-
-## Stocks
-
-### Create stock
-
-```http
-POST /stocks
-```
-
-Request:
-
-```json
-{
-  "product_id": 1,
-  "quantity": 100
-}
-```
-
----
-
-### Get all stocks
-
-```http
-GET /stocks
-```
-
----
-
-### Get stock by id
-
-```http
-GET /stocks/{id}
-```
-
----
-
-## Sales
-
-### Create sale
-
-```http
-POST /sales
-```
-
-Request:
-
-```json
-{
-  "product_id": 1,
-  "quantity": 3,
-  "sale_amount": 2997
-}
-```
-
----
-
-### Get all sales
-
-```http
-GET /sales
-```
-
----
-
-### Get sale by id
-
-```http
-GET /sales/{id}
-```
-
----
-
-## Error Handling
-
-Example:
-
-```http
-GET /products/999
-```
-
-Response:
-
-```json
-{
-  "detail": "Product not found"
-}
-```
-
-Status code:
-
-```http
-404 Not Found
-```
-
----
-
-# Running Locally
-
-## Clone repository
-
-```bash
-git clone <repository-url>
-cd marketplace-etl-ai-platform
-```
-
----
-
-## Run application
+### Вариант 1: через Docker Compose
 
 ```bash
 docker compose up --build
 ```
 
-Application:
+После запуска:
+- API будет доступно на http://localhost:8000
+- Swagger UI: http://localhost:8000/docs
+- PostgreSQL: localhost:5432
 
-```text
-http://localhost:8000
-```
+### Вариант 2: локально через Python
 
-Swagger UI:
-
-```text
-http://localhost:8000/docs
-```
-
-OpenAPI:
-
-```text
-http://localhost:8000/redoc
-```
-
----
-
-# Migrations
-
-Create migration:
+Для Linux/macOS:
 
 ```bash
-docker compose run --rm app alembic revision --autogenerate -m "migration name"
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Apply migrations:
+Для Windows PowerShell:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Если база ещё не создана, выполните миграции:
 
 ```bash
-docker compose run --rm app alembic upgrade head
+alembic upgrade head
 ```
 
-Check current version:
+## Проверка состояния сервисов
+
+### Health-check
 
 ```bash
-docker compose run --rm app alembic current
+curl http://localhost:8000/health
 ```
 
----
+Ожидаемый ответ:
 
-# Testing
-
-Test database:
-
-```text
-marketplace_test
+```json
+{"status": "ok"}
 ```
 
-Run tests:
+### Проверка соединения с БД
+
+```bash
+curl http://localhost:8000/db-check
+```
+
+## API
+
+### Продукты
+
+#### Создать товар
+
+```http
+POST /products
+```
+
+Тело запроса:
+
+```json
+{
+  "sku": "SKU-001",
+  "name": "Ноутбук",
+  "purchase_price": 500.0,
+  "sale_price": 899.0
+}
+```
+
+#### Получить все товары
+
+```http
+GET /products
+```
+
+#### Получить товар по ID
+
+```http
+GET /products/{product_id}
+```
+
+#### Обновить товар
+
+```http
+PUT /products/{product_id}
+```
+
+#### Удалить товар
+
+```http
+DELETE /products/{product_id}
+```
+
+### Остатки
+
+```http
+POST /stocks
+GET /stocks
+GET /stocks/{stock_id}
+```
+
+Тело для создания остатка:
+
+```json
+{
+  "product_id": 1,
+  "quantity": 42
+}
+```
+
+### Продажи
+
+```http
+POST /sales
+GET /sales
+GET /sales/{sale_id}
+```
+
+Тело для создания продажи:
+
+```json
+{
+  "product_id": 1,
+  "quantity": 2,
+  "sale_amount": 1798.0
+}
+```
+
+### Shopify
+
+#### Импорт всех продуктов
+
+```http
+POST /shopify/products/sync
+```
+
+#### Получить список продуктов Shopify
+
+```http
+GET /shopify/products?limit=20&offset=0
+```
+
+#### Статистика по продуктам Shopify
+
+```http
+GET /shopify/products/stats
+```
+
+Пример ответа:
+
+```json
+{
+  "total_products": 125,
+  "active_products": 98,
+  "draft_products": 17,
+  "archived_products": 10
+}
+```
+
+## Тестирование
+
+Запуск всех тестов:
 
 ```bash
 docker compose run --rm app pytest -v
 ```
 
-Current coverage includes:
+или локально:
 
-- Product CRUD
-- Stock creation and retrieval
-- Sale creation and retrieval
-- 404 validation
-- Health endpoint
-
-Current test suite:
-
-```text
-15 tests
+```bash
+pytest -v
 ```
 
----
+Текущий набор тестов: 19
 
-# CI/CD
+Покрытие включает:
 
-GitHub Actions automatically runs:
-
-- Dependency installation
-- Database migration check
-- Pytest test suite
-
-Workflow file:
+- Product API
+- Stock API
+- Sales API
+- Shopify API
+- Shopify статистику
+- Shopify пагинацию
+- Mock Shopify синхронизацию
 
 ```text
-.github/workflows/tests.yml
+19 passed
 ```
 
----
+## Миграции базы данных
 
-# Roadmap
+Создание новой миграции:
 
-## MVP Backend ✅
+```bash
+alembic revision --autogenerate -m "description"
+```
 
-- [x] FastAPI
-- [x] PostgreSQL
-- [x] SQLAlchemy
-- [x] Alembic
-- [x] Docker Compose
-- [x] Product CRUD
-- [x] Stocks API
-- [x] Sales API
-- [x] Pytest
-- [x] GitHub Actions
+Применение миграций:
 
-## ETL Layer 🚧
+```bash
+alembic upgrade head
+```
 
-- [ ] Wildberries API integration
-- [ ] Marketplace data ingestion
-- [ ] ETL pipelines
-- [ ] Scheduled synchronization
+## Примечания
 
-## Analytics 🚧
+- Проект предназначен для работы с каталогом товаров и потоками данных маркетплейса.
+- Shopify интеграция использует OAuth-style аутентификацию и GraphQL API для синхронизации данных в PostgreSQL и требует корректной настройки переменных окружения `SHOPIFY_SHOP`, `SHOPIFY_CLIENT_ID` и `SHOPIFY_CLIENT_SECRET`.
+- В текущем состоянии проект является базовой платформой для ETL и аналитики, которую можно расширять дополнительными источниками данных, агрегациями и AI-модулями.
 
-- [ ] Revenue analytics
-- [ ] Profit analytics
-- [ ] Inventory analytics
-- [ ] Product performance metrics
+## Полезные ссылки
 
-## AI Layer 🚧
-
-- [ ] AI insights
-- [ ] Demand forecasting
-- [ ] Inventory recommendations
-
----
-
-## Author
-
-Mustafa Muratov
-
-Backend Developer (Python / FastAPI / PostgreSQL)
-
-Project created for learning backend development, ETL pipelines, marketplace integrations, testing, and CI/CD.
+- Swagger UI: http://localhost:8000/docs
+- Redoc: http://localhost:8000/redoc
