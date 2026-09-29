@@ -1,6 +1,6 @@
 # Marketplace ETL Platform
 
-[![Tests](https://github.com/Icestorm203)](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml)
+[![Tests](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml/badge.svg)](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml)
 
 Проект представляет собой backend-сервис на FastAPI для управления данными маркетплейса: товары, остатки, продажи и синхронизация с Shopify. Архитектура рассчитана на хранение данных в PostgreSQL, миграции через Alembic и дальнейшее расширение для аналитики и интеграций.
 
