@@ -1,6 +1,6 @@
 # Marketplace ETL Platform
 
-[![Tests](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml/badge.svg)](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/tests.yml)
+[![CI](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/Icestorm203/marketplace-etl-ai-platform/actions/workflows/ci.yml)
 
 Проект представляет собой backend-сервис на FastAPI для управления данными маркетплейса: товары, остатки, продажи и синхронизация с Shopify. Архитектура рассчитана на хранение данных в PostgreSQL, миграции через Alembic и дальнейшее расширение для аналитики и интеграций.
 
@@ -25,7 +25,9 @@
 - Alembic
 - Pydantic
 - pytest
+- Ruff
 - Docker / Docker Compose
+- GitHub Actions
 - Shopify Admin API
 - GraphQL
 
@@ -53,6 +55,9 @@ REST API
 
 ```text
 .
+├── .github/
+│   └── workflows/
+│       └── ci.yml
 ├── alembic/                  # миграции базы данных
 ├── app/
 │   ├── api/                  # маршруты FastAPI
@@ -124,7 +129,7 @@ REST API
 Скопируйте [.env.example](.env.example) в .env и заполните значения:
 
 ```env
-DATABASE_URL=postgresql+psycopg2://postgres:postgres@postgres:5432/marketplace_db
+DATABASE_URL=postgresql+psycopg2://postgres:postgres@localhost:5432/marketplace_db
 POSTGRES_DB=marketplace_db
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
@@ -134,7 +139,7 @@ SHOPIFY_CLIENT_ID=
 SHOPIFY_CLIENT_SECRET=
 ```
 
-> Для локального запуска совместно с Docker переменные из .env автоматически подтягиваются в контейнер app.
+> При локальном запуске используется localhost:5432. При запуске через Docker Compose адрес базы данных автоматически переопределяется на postgres:5432.
 
 ## Запуск проекта
 
@@ -306,7 +311,22 @@ GET /shopify/products/stats
 }
 ```
 
-## Тестирование
+## Качество кода и тестирование
+
+### Качество кода
+
+Проверка кода:
+
+```bash
+ruff check .
+```
+
+Проверка форматирования:
+```bash
+ruff format --check .
+```
+
+### Тестирование
 
 Запуск всех тестов:
 

@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 
 class ShopifyProduct(BaseModel):
@@ -10,14 +9,9 @@ class ShopifyProduct(BaseModel):
 
 
 class ShopifyPageInfo(BaseModel):
-    has_next_page: bool = Field(
-        validation_alias="hasNextPage"
-    )
+    has_next_page: bool = Field(validation_alias="hasNextPage")
 
-    end_cursor: str | None = Field(
-        default=None,
-        validation_alias="endCursor"
-    )
+    end_cursor: str | None = Field(default=None, validation_alias="endCursor")
 
 
 class ShopifyProductsPage(BaseModel):

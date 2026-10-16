@@ -1,16 +1,13 @@
 from fastapi import FastAPI
-
 from sqlalchemy import text
 
-from app.database.database import engine
 from app.api.products import router as products_router
-from app.api.stocks import router as stocks_router
 from app.api.sales import router as sales_router
 from app.api.shopify import router as shopify_router
+from app.api.stocks import router as stocks_router
+from app.database.database import engine
 
-app = FastAPI(
-    title="Marketplace ETL & AI Analytics Platform"
-)
+app = FastAPI(title="Marketplace ETL & AI Analytics Platform")
 
 
 @app.get("/health")
@@ -22,14 +19,9 @@ async def health():
 async def db_check():
 
     with engine.connect() as connection:
-        result = connection.execute(
-            text("SELECT 1")
-        )
+        result = connection.execute(text("SELECT 1"))
 
-        return {
-            "database": "connected",
-            "result": result.scalar()
-        }
+        return {"database": "connected", "result": result.scalar()}
 
 
 app.include_router(products_router)

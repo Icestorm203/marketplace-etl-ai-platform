@@ -23,10 +23,7 @@ class ShopifyAuth:
         self._expires_at: float = 0
 
     def get_access_token(self) -> str:
-        if (
-            self._access_token is not None
-            and time.time() < self._expires_at
-        ):
+        if self._access_token is not None and time.time() < self._expires_at:
             return self._access_token
 
         response = requests.post(

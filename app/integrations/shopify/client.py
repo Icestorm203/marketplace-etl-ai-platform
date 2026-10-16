@@ -64,9 +64,7 @@ class ShopifyClient:
         payload = response.json()
 
         if payload.get("errors"):
-            raise RuntimeError(
-                f"Shopify GraphQL errors: {payload['errors']}"
-            )
+            raise RuntimeError(f"Shopify GraphQL errors: {payload['errors']}")
 
         return payload["data"]
 

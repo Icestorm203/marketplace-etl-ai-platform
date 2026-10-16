@@ -16,12 +16,14 @@ def load_products_page(
         after=cursor,
     )
 
-    validated = ShopifyProductsResponse.model_validate({
-        "products": {
-            "products": raw_data["products"]["nodes"],
-            "page_info": raw_data["products"]["pageInfo"],
+    validated = ShopifyProductsResponse.model_validate(
+        {
+            "products": {
+                "products": raw_data["products"]["nodes"],
+                "page_info": raw_data["products"]["pageInfo"],
+            }
         }
-    })
+    )
 
     return validated.products
 
@@ -47,14 +49,16 @@ def load_all_products() -> list:
 
         cursor = page["pageInfo"]["endCursor"]
 
-    validated = ShopifyProductsResponse.model_validate({
-        "products": {
-            "products": products,
-            "page_info": {
-                "hasNextPage": False,
-                "endCursor": cursor,
-            },
+    validated = ShopifyProductsResponse.model_validate(
+        {
+            "products": {
+                "products": products,
+                "page_info": {
+                    "hasNextPage": False,
+                    "endCursor": cursor,
+                },
+            }
         }
-    })
+    )
 
     return validated.products.products

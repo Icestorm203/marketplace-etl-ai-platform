@@ -1,20 +1,16 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException
-from app.models.product import Product
-from app.schemas.product import (
-    ProductCreate,
-    ProductUpdate
-)
+from sqlalchemy.orm import Session
 
-def create_product(
-    db: Session,
-    product_data: ProductCreate
-):
+from app.models.product import Product
+from app.schemas.product import ProductCreate, ProductUpdate
+
+
+def create_product(db: Session, product_data: ProductCreate):
     product = Product(
         sku=product_data.sku,
         name=product_data.name,
         purchase_price=product_data.purchase_price,
-        sale_price=product_data.sale_price
+        sale_price=product_data.sale_price,
     )
 
     db.add(product)
@@ -28,26 +24,16 @@ def get_products(db: Session):
     return db.query(Product).all()
 
 
-def get_product_by_id(
-    db: Session,
-    product_id: int
-):
+def get_product_by_id(db: Session, product_id: int):
     product = db.get(Product, product_id)
 
     if not product:
-        raise HTTPException(
-            status_code=404,
-            detail="Product not found"
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     return product
 
 
-def update_product(
-    db: Session,
-    product_id: int,
-    product_data: ProductUpdate
-):
+def update_product(db: Session, product_id: int, product_data: ProductUpdate):
     product = db.get(Product, product_id)
 
     if not product:
@@ -64,21 +50,13 @@ def update_product(
     return product
 
 
-def delete_product(
-    db: Session,
-    product_id: int
-):
+def delete_product(db: Session, product_id: int):
     product = db.get(Product, product_id)
 
     if not product:
-        raise HTTPException(
-            status_code=404,
-            detail="Product not found"
-        )
+        raise HTTPException(status_code=404, detail="Product not found")
 
     db.delete(product)
     db.commit()
 
-    return {
-        "message": "Product deleted"
-    }
+    return {"message": "Product deleted"}

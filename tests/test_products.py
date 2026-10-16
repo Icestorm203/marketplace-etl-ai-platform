@@ -5,8 +5,8 @@ def test_create_product(client):
             "sku": "SKU-CREATE",
             "name": "Mouse",
             "purchase_price": 500,
-            "sale_price": 990
-        }
+            "sale_price": 990,
+        },
     )
 
     assert response.status_code == 200
@@ -33,9 +33,7 @@ def test_get_products(client, product):
 
 
 def test_get_product_by_id(client, product):
-    response = client.get(
-        f"/products/{product['id']}"
-    )
+    response = client.get(f"/products/{product['id']}")
 
     assert response.status_code == 200
     assert response.json()["sku"] == "TEST-SKU-001"
@@ -45,9 +43,7 @@ def test_get_missing_product(client):
     response = client.get("/products/999999")
 
     assert response.status_code == 404
-    assert response.json() == {
-        "detail": "Product not found"
-    }
+    assert response.json() == {"detail": "Product not found"}
 
 
 def test_update_product(client, product):
@@ -57,8 +53,8 @@ def test_update_product(client, product):
             "sku": "TEST-SKU-UPDATED",
             "name": "Gaming Mouse",
             "purchase_price": 600,
-            "sale_price": 1190
-        }
+            "sale_price": 1190,
+        },
     )
 
     assert response.status_code == 200
@@ -71,18 +67,12 @@ def test_update_product(client, product):
 
 
 def test_delete_product(client, product):
-    response = client.delete(
-        f"/products/{product['id']}"
-    )
+    response = client.delete(f"/products/{product['id']}")
 
     assert response.status_code == 200
-    assert response.json() == {
-        "message": "Product deleted"
-    }
+    assert response.json() == {"message": "Product deleted"}
 
-    get_response = client.get(
-        f"/products/{product['id']}"
-    )
+    get_response = client.get(f"/products/{product['id']}")
 
     assert get_response.status_code == 404
 
@@ -91,6 +81,4 @@ def test_delete_missing_product(client):
     response = client.delete("/products/999999")
 
     assert response.status_code == 404
-    assert response.json() == {
-        "detail": "Product not found"
-    }
+    assert response.json() == {"detail": "Product not found"}

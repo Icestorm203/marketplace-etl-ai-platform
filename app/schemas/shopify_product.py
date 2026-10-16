@@ -1,5 +1,4 @@
-from pydantic import BaseModel
-from pydantic import ConfigDict
+from pydantic import BaseModel, ConfigDict
 
 
 class ShopifyProductResponse(BaseModel):
@@ -8,6 +7,4 @@ class ShopifyProductResponse(BaseModel):
     vendor: str | None = None
     status: str
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)

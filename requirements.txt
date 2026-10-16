@@ -12,6 +12,7 @@ python-dotenv
 
 pytest
 httpx
+ruff
 
 psycopg2-binary
 requests

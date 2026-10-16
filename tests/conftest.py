@@ -2,17 +2,13 @@ import os
 
 import psycopg2
 import pytest
-
 from fastapi.testclient import TestClient
-
 from psycopg2 import sql
-
 from sqlalchemy import create_engine
 from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
 
-from app.database.database import Base
-from app.database.database import get_db
+from app.database.database import Base, get_db
 from app.main import app
 
 # Регистрируем модели в Base.metadata
@@ -21,13 +17,9 @@ from app.models.sale import Sale
 from app.models.shopify_product import ShopifyProduct
 from app.models.stock import Stock
 
-
 TEST_DATABASE_URL = os.getenv(
     "TEST_DATABASE_URL",
-    (
-        "postgresql+psycopg2://"
-        "postgres:postgres@postgres:5432/marketplace_test"
-    ),
+    ("postgresql+psycopg2://postgres:postgres@localhost:5432/marketplace_test"),
 )
 
 test_url = make_url(TEST_DATABASE_URL)
@@ -74,9 +66,7 @@ def create_test_database():
 
             if not database_exists:
                 cursor.execute(
-                    sql.SQL(
-                        "CREATE DATABASE {}"
-                    ).format(
+                    sql.SQL("CREATE DATABASE {}").format(
                         sql.Identifier(test_database_name)
                     )
                 )
@@ -100,9 +90,7 @@ def drop_test_database():
             )
 
             cursor.execute(
-                sql.SQL(
-                    "DROP DATABASE IF EXISTS {}"
-                ).format(
+                sql.SQL("DROP DATABASE IF EXISTS {}").format(
                     sql.Identifier(test_database_name)
                 )
             )
@@ -126,15 +114,11 @@ app.dependency_overrides[get_db] = override_get_db
 def prepare_database():
     create_test_database()
 
-    Base.metadata.create_all(
-        bind=test_engine
-    )
+    Base.metadata.create_all(bind=test_engine)
 
     yield
 
-    Base.metadata.drop_all(
-        bind=test_engine
-    )
+    Base.metadata.drop_all(bind=test_engine)
 
     test_engine.dispose()
 

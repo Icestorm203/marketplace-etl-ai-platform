@@ -1,8 +1,8 @@
-from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.models.shopify_product import ShopifyProduct
-from app.integrations.shopify.service import load_all_products
+from sqlalchemy.orm import Session
 
+from app.integrations.shopify.service import load_all_products
+from app.models.shopify_product import ShopifyProduct
 
 
 def sync_products(db: Session) -> int:
@@ -11,11 +11,7 @@ def sync_products(db: Session) -> int:
     imported = 0
 
     for product in products:
-
-        existing = db.get(
-            ShopifyProduct,
-            product.id
-        )
+        existing = db.get(ShopifyProduct, product.id)
 
         if existing:
             existing.title = product.title
@@ -38,11 +34,7 @@ def sync_products(db: Session) -> int:
     return imported
 
 
-def get_products(
-    db: Session,
-    limit: int = 20,
-    offset: int = 0
-) -> list[ShopifyProduct]:
+def get_products(db: Session, limit: int = 20, offset: int = 0) -> list[ShopifyProduct]:
     return (
         db.query(ShopifyProduct)
         .order_by(ShopifyProduct.title)
@@ -53,27 +45,25 @@ def get_products(
 
 
 def get_products_stats(db: Session) -> dict:
-    total = db.query(
-        func.count(ShopifyProduct.id)
-    ).scalar()
+    total = db.query(func.count(ShopifyProduct.id)).scalar()
 
-    active = db.query(
-        func.count(ShopifyProduct.id)
-    ).filter(
-        ShopifyProduct.status == "ACTIVE"
-    ).scalar()
+    active = (
+        db.query(func.count(ShopifyProduct.id))
+        .filter(ShopifyProduct.status == "ACTIVE")
+        .scalar()
+    )
 
-    draft = db.query(
-        func.count(ShopifyProduct.id)
-    ).filter(
-        ShopifyProduct.status == "DRAFT"
-    ).scalar()
+    draft = (
+        db.query(func.count(ShopifyProduct.id))
+        .filter(ShopifyProduct.status == "DRAFT")
+        .scalar()
+    )
 
-    archived = db.query(
-        func.count(ShopifyProduct.id)
-    ).filter(
-        ShopifyProduct.status == "ARCHIVED"
-    ).scalar()
+    archived = (
+        db.query(func.count(ShopifyProduct.id))
+        .filter(ShopifyProduct.status == "ARCHIVED")
+        .scalar()
+    )
 
     return {
         "total_products": total,

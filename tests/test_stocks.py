@@ -1,10 +1,6 @@
 def test_create_stock(client, product):
     response = client.post(
-        "/stocks",
-        json={
-            "product_id": product["id"],
-            "quantity": 100
-        }
+        "/stocks", json={"product_id": product["id"], "quantity": 100}
     )
 
     assert response.status_code == 200
@@ -18,11 +14,7 @@ def test_create_stock(client, product):
 
 def test_get_stock_by_id(client, product):
     create_response = client.post(
-        "/stocks",
-        json={
-            "product_id": product["id"],
-            "quantity": 50
-        }
+        "/stocks", json={"product_id": product["id"], "quantity": 50}
     )
 
     stock_id = create_response.json()["id"]
@@ -37,6 +29,4 @@ def test_get_missing_stock(client):
     response = client.get("/stocks/999999")
 
     assert response.status_code == 404
-    assert response.json() == {
-        "detail": "Stock not found"
-    }
+    assert response.json() == {"detail": "Stock not found"}
